@@ -3,7 +3,7 @@ This is a simple script to get the machine's IP address and update cloudflare's 
 
 # Installation
 ```shell 
-git clone repository
+git clone https://github.com/benleejc/cloudflare_ddns_ipupdater.git
 ```
 # Usage
 1. Clone repository locally
