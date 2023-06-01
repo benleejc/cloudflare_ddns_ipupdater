@@ -27,11 +27,11 @@ record=$(curl --request GET \
   --header "X-Auth-Key: $token")
 
 if [[ $record =~ \"count\":[2-9] ]]; then
-    logger -s "DDNS Updater: Multiple records for (${record_name}) found."
+    logger -s "Cloudflare DNS IP updater: Multiple records for (${record_name}) found."
     exit 1
 fi
 if [[ $record =~ \"count\":0 ]]; then
-    logger -s "DDNS Updater: Record doesn't exist. Please create one for (${record_name}) first"
+    logger -s "Cloudflare DNS IP updater: Record doesn't exist. Please create one for (${record_name}) first"
     exit 1
 fi
 if [[ $record =~ \"count\":1 ]]; then
@@ -55,14 +55,13 @@ fi
 
 # verify ip is valid
 if [[ ! $ip =~ $ipv4_regex ]]; then
-    logger -s "DDNS Updater: Invalid IP"
+    logger -s "Cloudflare DNS IP updater: Invalid IP"
     exit 2
 fi
-ip="8.8.8.8"
 
 # compare ip
 if [[ $ip == $old_ip ]]; then
-    logger -s "DDNS Updater: IP already exists. No change needed."
+    logger -s "Cloudflare DNS IP updater: IP already exists. No change needed."
     exit 0
 fi
 
@@ -75,10 +74,10 @@ update=$(curl --request PUT \
   --data "{\"content\":\"$ip\",\"name\":\"$record_name\",\"proxied\":${proxied},\"type\":\"A\",\"ttl\": 3600}")
 
 if [[ $update =~ \"success\":false\" ]]; then
-    message="DDNS Updater: IP failed to update"
+    message="Cloudflare DNS IP updater: IP failed to update"
     logger -s $message
 else
-    message="DDNS Updater: $record_name IP updated from $old_ip to $ip"
+    message="Cloudflare DNS IP updater: $record_name IP updated from $old_ip to $ip"
     logger -s $message
 fi
 
