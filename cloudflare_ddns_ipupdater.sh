@@ -29,7 +29,14 @@ auth_type="global"          # uses global by defaul
 proxied="false"             # proxy false by default
 
 if [[ $token == "" ]]; then
-    logger -s "Cloudflare DNS IP Updater: WARNING Token not set."
+    message="Cloudflare DNS IP Updater [ERROR]: Token not set."
+    logger -s $message
+    if [[ ! $slack_uri == "" ]]; then
+        slack_update=$(curl -X POST \
+            --url "https://hooks.slack.com/services/$slack_uri" \
+            --header 'Content-type: application/json' \
+            --data "{\"text\":\"$message\"}" )
+    fi
     exit 1
 fi
 
@@ -41,16 +48,21 @@ record=$(curl --request GET \
   --header "X-Auth-Email: $auth_email" \
   --header "X-Auth-Key: $token")
 
-if [[ $record =~ \"count\":[2-9] ]]; then
-    logger -s "Cloudflare DNS IP updater: Multiple records for (${record_name}) found."
+if [[ ! $record =~ \"count\":1 ]]; then
+    if [[ $record =~ \"count\":0 ]]; then
+        message="Cloudflare DNS IP updater [ERROR]: Record doesn't exist. Please create one for (${record_name}) first"
+    fi
+    if [[ $record =~ \"count\":[2-9] ]]; then
+        message="Cloudflare DNS IP updater [ERROR]: Multiple records for (${record_name}) found."
+    fi
+    logger -s $message
+    if [[ ! $slack_uri == "" ]]; then
+        slack_update=$(curl -X POST \
+            --url "https://hooks.slack.com/services/$slack_uri" \
+            --header 'Content-type: application/json' \
+            --data "{\"text\":\"$message\"}" )
+    fi
     exit 1
-fi
-if [[ $record =~ \"count\":0 ]]; then
-    logger -s "Cloudflare DNS IP updater: Record doesn't exist. Please create one for (${record_name}) first"
-    exit 1
-fi
-if [[ $record =~ \"count\":1 ]]; then
-    echo "Record found!"
 fi
 
 # get existing variables from dns record
