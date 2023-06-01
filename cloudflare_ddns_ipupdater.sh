@@ -1,6 +1,7 @@
-#!bin/bash
+#!/bin/bash
 #source secrets file for variables
-source secrets.sh
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source $SCRIPT_DIR/secrets.sh
 
 ####################################################
 ################ secrets.sh sample #################
@@ -10,6 +11,13 @@ source secrets.sh
 # zone_id=""
 # record_name=""
 # slack_uri=""
+
+####################################################
+################ crontab script ####################
+####################################################
+# SHELL=/bin/bash
+# */1 * * * * ~/cloudflare_ddns_ipupdater.sh # Change path where necessary
+
 
 token=$token                # global token by default
 auth_email=$auth_email      # cloudflare email
