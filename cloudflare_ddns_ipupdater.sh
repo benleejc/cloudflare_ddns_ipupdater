@@ -2,12 +2,13 @@
 #source secrets file for variables
 source secrets.sh
 
-token=$token
-auth_email=$auth_email
-auth_type="global"
-zone_id=$zone_id
-record_name=$record_name
-proxied="false"
+token=$token                # global token by default
+auth_email=$auth_email      # cloudflare email
+auth_type="global"          # uses global by defaul
+zone_id=$zone_id            # zone identifier for website in cloudflare
+record_name=$record_name    # record name to change eg. wgvpn.benleejc.com
+proxied="false"             # proxy false by default
+slack_uri=$slack_uri        # slack webhook endpoint for messages
 
 # check existing record exists
 record=$(curl --request GET \
@@ -48,6 +49,7 @@ if [[ ! $ip =~ $ipv4_regex ]]; then
     logger -s "DDNS Updater: Invalid IP"
     exit 2
 fi
+ip="8.8.8.8"
 
 # compare ip
 if [[ $ip == $old_ip ]]; then
@@ -63,11 +65,20 @@ update=$(curl --request PUT \
   --header "X-Auth-Key: $token" \
   --data "{\"content\":\"$ip\",\"name\":\"$record_name\",\"proxied\":${proxied},\"type\":\"A\",\"ttl\": 3600}")
 
-# TODO send update to slack
 if [[ $update =~ \"success\":false\" ]]; then
-    logger -s "DDNS Updater: IP failed to update"
-    exit 1
+    message="DDNS Updater: IP failed to update"
+    logger -s $message
 else
-    logger -s "DDNS Updater: $record_name IP updated from $old_ip to $ip"
+    message="DDNS Updater: $record_name IP updated from $old_ip to $ip"
+    logger -s $message
 fi
+
+# send update to slack
+if [[ ! $slack_uri == "" ]]; then
+    slack_update=$(curl -X POST \
+        --url "https://hooks.slack.com/services/$slack_uri" \
+        --header 'Content-type: application/json' \
+        --data "{\"text\":\"$message\"}" )
+fi
+
 
