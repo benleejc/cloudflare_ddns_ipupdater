@@ -2,6 +2,15 @@
 #source secrets file for variables
 source secrets.sh
 
+####################################################
+################ secrets.sh sample #################
+####################################################
+# token=""
+# auth_email=""
+# zone_id=""
+# record_name=""
+# slack_uri=""
+
 token=$token                # global token by default
 auth_email=$auth_email      # cloudflare email
 auth_type="global"          # uses global by defaul
