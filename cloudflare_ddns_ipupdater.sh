@@ -1,8 +1,4 @@
 #!/bin/bash
-#source secrets file for variables
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-source $SCRIPT_DIR/secrets.sh
-
 ####################################################
 ################ secrets.sh sample #################
 ####################################################
@@ -18,14 +14,24 @@ source $SCRIPT_DIR/secrets.sh
 # SHELL=/bin/bash
 # */1 * * * * ~/cloudflare_ddns_ipupdater.sh # Change path where necessary
 
+#source secrets file for variables
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source $SCRIPT_DIR/secrets.sh
+
 
 token=$token                # global token by default
 auth_email=$auth_email      # cloudflare email
-auth_type="global"          # uses global by defaul
 zone_id=$zone_id            # zone identifier for website in cloudflare
 record_name=$record_name    # record name to change eg. wgvpn.benleejc.com
-proxied="false"             # proxy false by default
 slack_uri=$slack_uri        # slack webhook endpoint for messages
+auth_type="global"          # uses global by defaul
+proxied="false"             # proxy false by default
+
+if [[ $token == "" ]]; then
+    logger -s "Cloudflare DNS IP Updater: WARNING Token not set."
+    exit 1
+fi
+
 
 # check existing record exists
 record=$(curl --request GET \
