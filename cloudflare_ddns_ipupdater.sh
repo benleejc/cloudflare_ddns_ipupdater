@@ -11,8 +11,9 @@
 ####################################################
 ################ crontab script ####################
 ####################################################
-# SHELL=/bin/bash
-# */1 * * * * ~/cloudflare_ddns_ipupdater.sh # Change path where necessary
+# Copy and uncomment the below script in crontab -e to run this update every minute
+# to view logs use grep "cfddns" /var/log/syslog
+# */1 * * * * ~/cloudflare_ddns_ipupdater.sh 2>&1 | logger -t cfddns 
 
 #source secrets file for variables
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
